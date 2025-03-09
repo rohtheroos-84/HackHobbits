@@ -1,3 +1,4 @@
+
 <body>
 
 <h1>Deepfake Video Detection with Vision Transformer (ViT)</h1>
@@ -21,8 +22,8 @@
 <h2>Dataset Preparation</h2>
 <h3>Video Directories:</h3>
 <ul>
-    <li><strong>Real Videos:</strong> /kaggle/input/deep-fake-detection-dfd-entire-original-dataset/DFD_original sequences</li>
-    <li><strong>Manipulated Videos:</strong> /kaggle/input/deep-fake-detection-dfd-entire-original-dataset/DFD_manipulated_sequences/DFD_manipulated_sequences</li>
+    <li><strong>Real Videos:</strong> <code>/kaggle/input/deep-fake-detection-dfd-entire-original-dataset/DFD_original sequences</code></li>
+    <li><strong>Manipulated Videos:</strong> <code>/kaggle/input/deep-fake-detection-dfd-entire-original-dataset/DFD_manipulated_sequences/DFD_manipulated_sequences</code></li>
 </ul>
 
 <h3>Frame Extraction:</h3>
@@ -30,13 +31,16 @@
 <br>
 
 <h2>Model Architecture</h2>
+<img src="Pictures/img4.png" alt="Model Architecture Diagram" width="600">
+
 <ul>
-    <li><strong>Base Model:</strong> Vision Transformer (vit_base_patch16_224) from the timm library.</li>
+    <li><strong>Base Model:</strong> Vision Transformer (<code>vit_base_patch16_224</code>) from the timm library.</li>
     <li><strong>Input Size:</strong> 224x224 pixels</li>
     <li><strong>Number of Classes:</strong> 2 (Real, Manipulated)</li>
     <li><strong>Pretrained Weights:</strong> Yes (ImageNet)</li>
 </ul>
 
+<h3>Model Initialization:</h3>
 <pre>
 <code>
 model = timm.create_model('vit_base_patch16_224', pretrained=True, num_classes=2)
@@ -49,7 +53,6 @@ model = nn.DataParallel(model)
 <h2>Training Process</h2>
 <h3>Transformations:</h3>
 <p>Image augmentations to enhance model generalization:</p>
-
 <pre>
 <code>
 transform = transforms.Compose([
@@ -66,7 +69,6 @@ transform = transforms.Compose([
 </pre>
 
 <h3>Training Loop:</h3>
-<p>Training with early stopping and learning rate scheduling:</p>
 <pre>
 <code>
 for epoch in range(num_epochs):
@@ -84,7 +86,6 @@ for epoch in range(num_epochs):
 
 <h2>Validation and Metrics</h2>
 <h3>Classification Report:</h3>
-<p>Evaluate the model using a validation set:</p>
 <pre>
 <code>
 print(classification_report(all_labels, all_predictions, target_names=['Real', 'Manipulated']))
@@ -92,7 +93,6 @@ print(classification_report(all_labels, all_predictions, target_names=['Real', '
 </pre>
 
 <h3>Confusion Matrix:</h3>
-<p>Visualize model predictions:</p>
 <pre>
 <code>
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
@@ -135,7 +135,6 @@ pip install timm torch torchvision opencv-python pillow scikit-learn seaborn mat
 </pre>
 
 <h3>CUDA Verification:</h3>
-<p>Ensure GPU support:</p>
 <pre>
 <code>
 print("CUDA Available:", torch.cuda.is_available())
@@ -154,14 +153,21 @@ print("GPU Name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() el
 
 <h3>Example Predictions:</h3>
 <ul>
-    <li><strong>Real Video:</strong> 02__kitchen_still.mp4 → Real</li>
-    <li><strong>Manipulated Video:</strong> 01_20__walking_and_outside_surprised__OTGHOG4Z.mp4 → Manipulated</li>
+    <li><strong>Real Video:</strong> <code>02__kitchen_still.mp4</code> → Real</li>
+    <li><strong>Manipulated Video:</strong> <code>01_20__walking_and_outside_surprised__OTGHOG4Z.mp4</code> → Manipulated</li>
 </ul>
+<br>
+
+<h2>Website Usage</h2>
+<p>The website interface looks like this:</p>
+<img src="Pictures/img1.png" alt="Website Landing Page" width="600">
+
+<p>After uploading an image or video:</p>
+<img src="Pictures/img2.png" alt="Upload Interface" width="600">
+
+<p>The model processes the frames and displays results as it progresses:</p>
+<img src="Pictures/img3.png" alt="Processing Results" width="600">
 
 <p>This setup provides a robust pipeline for detecting deepfake videos using frame-level classification, leveraging state-of-the-art transformer models and powerful GPU acceleration.</p>
 
-Website Usage:
-The Website upon launching looks like this:
-
 </body>
-
