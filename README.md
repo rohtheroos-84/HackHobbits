@@ -31,7 +31,7 @@
 <br>
 
 <h2>Model Architecture</h2>
-<img src="Pictures/img4.png" alt="Model Architecture Diagram" width="600">
+<img src="Pictures/Img4.png" alt="Model Architecture Diagram" width="600">
 
 <ul>
     <li><strong>Base Model:</strong> Vision Transformer (<code>vit_base_patch16_224</code>) from the timm library.</li>
@@ -160,13 +160,13 @@ print("GPU Name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() el
 
 <h2>Website Usage</h2>
 <p>The website interface looks like this:</p>
-<img src="Pictures/img1.png" alt="Website Landing Page" width="600">
+<img src="Pictures/Img1.png" alt="Website Landing Page" width="600">
 
 <p>After uploading an image or video:</p>
-<img src="Pictures/img2.png" alt="Upload Interface" width="600">
+<img src="Pictures/Img2.png" alt="Upload Interface" width="600">
 
 <p>The model processes the frames and displays results as it progresses:</p>
-<img src="Pictures/img3.png" alt="Processing Results" width="600">
+<img src="Pictures/Img3.png" alt="Processing Results" width="600">
 
 <p>This setup provides a robust pipeline for detecting deepfake videos using frame-level classification, leveraging state-of-the-art transformer models and powerful GPU acceleration.</p>
 
