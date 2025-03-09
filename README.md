@@ -1,23 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deepfake Video Detection with ViT</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; padding: 20px; background-color: #f9f9f9; }
-        h1, h2, h3 { color: #333; }
-        ul { list-style: none; padding: 0; }
-        ul li { padding: 5px 0; }
-        a { color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        pre { background: #272822; color: #f8f8f2; padding: 10px; border-radius: 5px; overflow-x: auto; }
-        code { font-family: Consolas, monospace; }
-        img { max-width: 100%; height: auto; display: block; margin: 20px 0; }
-        .contributors { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card { padding: 20px; border: 2px solid #ccc; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
-    </style>
-</head>
+
 <body>
 
 <h1>Deepfake Video Detection with Vision Transformer (ViT)</h1>
