@@ -1,10 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deepfake Video Detection with Vision Transformer (ViT)</title>
-</head>
 <body>
 
 <h1>Deepfake Video Detection with Vision Transformer (ViT)</h1>
@@ -21,6 +14,7 @@
     <li>Video Prediction</li>
     <li>Installation and Setup</li>
     <li>Results</li>
+    <li>Website Usage</li>
 </ul>
 <br>
 
@@ -166,5 +160,8 @@ print("GPU Name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() el
 
 <p>This setup provides a robust pipeline for detecting deepfake videos using frame-level classification, leveraging state-of-the-art transformer models and powerful GPU acceleration.</p>
 
+Website Usage:
+The Website upon launching looks like this:
+
 </body>
-</html>
+
