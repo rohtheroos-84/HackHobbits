@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Particles from "./components/Particles"; // Particle background component
-import GradientText from "./GradientText"; // Gradient text component
+import GradientText from "./GradientText"; // (Unused here but kept for consistency)
 import DecryptedText from "./DecryptedText"; // Decryption effect component
 import RotatingText from "./RotatingText"; // Rotating text component
 import SplitText from "./SplitText"; // Split-text animation component
-import "./App.css"; // Global styles
+import LiveBar from "./LiveBar"; // Live bar component
+import "./x.css"; // Global styles
+import ConstellationBackground from "./ConstellationBackground";
 
-// Example team members data for the About Us section
 const teamMembers = [
   {
     name: "Yadeesh T",
@@ -18,8 +19,8 @@ const teamMembers = [
   {
     name: "Gokul Ram K",
     github: "https://github.com/GOKULRAM-K",
-    linkedin: "https://www.linkedin.com/in/gokul-ram-k-277a6a308 ",
-    email: "gokul.ram.kannan210905@gmail.com",
+    linkedin: "https://www.linkedin.com/in/gokul-ram-k-277a6a308",
+    email: "gokul.ram.kannan21@gmail.com",
     image: "/dp.jpg",
   },
   {
@@ -45,12 +46,12 @@ const handleAnimationComplete = () => {
 function App() {
   const [file, setFile] = useState(null);
   const [fileURL, setFileURL] = useState(null);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState(null); // Holds live JSON result from backend
   const [loading, setLoading] = useState(false);
-  // State to force re-mounting the SplitText component so the title animation re-runs
+  const [processingComplete, setProcessingComplete] = useState(false);
   const [homeKey, setHomeKey] = useState(0);
+  const resultRef = useRef(null);
 
-  // Smooth scroll function (update the scroll offset if needed)
   const handleSmoothScroll = useCallback((event) => {
     event.preventDefault();
     const targetId = event.currentTarget.getAttribute("href").substring(1);
@@ -63,7 +64,6 @@ function App() {
     }
   }, []);
 
-  // Highlight nav links based on scroll position
   useEffect(() => {
     const handleScroll = () => {
       const sections = document.querySelectorAll("section");
@@ -87,14 +87,12 @@ function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Observer to update homeKey every time the home section comes into view
   useEffect(() => {
     const homeSection = document.getElementById("home");
     if (!homeSection) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // Update the key to re-mount SplitText and trigger its animation
           setHomeKey((prev) => prev + 1);
         }
       },
@@ -117,15 +115,14 @@ function App() {
       setFile(selectedFile);
       setFileURL(URL.createObjectURL(selectedFile));
       setResult(null);
+      setProcessingComplete(false);
     }
   };
 
-  // New function: Handle drag over to allow drop
   const handleDragOver = (event) => {
     event.preventDefault();
   };
 
-  // New function: Handle drop event to process dragged files
   const handleDrop = (event) => {
     event.preventDefault();
     const droppedFile = event.dataTransfer.files[0];
@@ -140,26 +137,70 @@ function App() {
       setFile(droppedFile);
       setFileURL(URL.createObjectURL(droppedFile));
       setResult(null);
+      setProcessingComplete(false);
     }
   };
 
-  const handleDetect = () => {
+  const handleDetect = async () => {
     if (!file) {
       alert("Please upload a video/image first.");
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      const isDeepfake = Math.random() < 0.5;
-      setResult(isDeepfake ? "Deepfake Detected ❌" : "Real Content ✅");
-      setLoading(false);
-    }, 2000);
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const response = await fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        body: formData,
+      });
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let accumulated = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          setProcessingComplete(true);
+          break;
+        }
+        accumulated += decoder.decode(value, { stream: true });
+        const events = accumulated.split("\n\n");
+        accumulated = events.pop(); // Last incomplete part
+        events.forEach((eventStr) => {
+          if (eventStr.startsWith("data: ")) {
+            const jsonStr = eventStr.replace("data: ", "");
+            const data = JSON.parse(jsonStr);
+            setResult(data);
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error during detection:", error);
+      alert("Error during detection. Check console for details.");
+    }
+    setLoading(false);
   };
+
+  const finalVerdict =
+    processingComplete && result
+      ? result.real_count > result.fake_count
+        ? "Real Content"
+        : "Deepfake Detected"
+      : "";
+
+  const verdictBgColor =
+    finalVerdict === "Real Content"
+      ? "#00c853"
+      : finalVerdict === "Deepfake Detected"
+      ? "#ff3d00"
+      : "transparent";
 
   return (
     <div className="app">
-      <Particles />
+      
+      <ConstellationBackground />
       <nav className="navbar" id="main-nav">
+        {/* Nav bar remains unchanged */}
         <div className="logo">
           <span className="logo-static">Hack</span>
           <RotatingText
@@ -182,7 +223,7 @@ function App() {
           </li>
           <li>
             <a href="#architecture" onClick={handleSmoothScroll}>
-              Architecture
+              WorkFlow
             </a>
           </li>
           <li>
@@ -192,27 +233,33 @@ function App() {
           </li>
         </ul>
       </nav>
+      <br /> <br /> <br />
       <section id="home" className="container">
-        {/* The key prop forces a re-mount so that the SplitText animation runs each time */}
-        <SplitText
-          key={homeKey}
-          text="Deepfake Detector"
-          className="split-title"
-          delay={20}
-          animationFrom={{ opacity: 0, transform: "translate3d(0,20px,0)" }}
-          animationTo={{ opacity: 1, transform: "translate3d(0,0,0)", color: "white" }}
-          easing="easeOutCubic"
-          threshold={0.2}
-          rootMargin="-20px"
-          onLetterAnimationComplete={handleAnimationComplete}
-        />
-        <br />
-        <br />
-        <div
-          className="upload-box"
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
+        {/* Project title placed in home section */}
+        <div className="project-title">
+          <span className="title-deep">Deep</span>
+          <span className="title-shield">Shield</span>
+        </div>
+        <div className="tagline-container">
+          <SplitText
+            key="tagline"
+            text="Exposing the Truth, One Frame at a Time."
+            className="tagline"
+            delay={20}
+            animationFrom={{ opacity: 0, transform: "translate3d(0,20px,0)" }}
+            animationTo={{
+              opacity: 1,
+              transform: "translate3d(0,0,0)",
+              color: "white",
+            }}
+            easing="easeOutCubic"
+            threshold={0.2}
+            rootMargin="-20px"
+            onLetterAnimationComplete={handleAnimationComplete}
+          />
+        </div>
+        <br /> <br />
+        <div className="upload-box" onDragOver={handleDragOver} onDrop={handleDrop}>
           <input
             type="file"
             accept="video/*,image/*"
@@ -229,57 +276,70 @@ function App() {
             )}
           </div>
         )}
-        <br />
-        <br />
         <button className="detect-btn" onClick={handleDetect} disabled={loading}>
           {loading ? "Analyzing..." : "Detect Deepfake"}
         </button>
         {result && (
-          <div className={`result ${result.includes("Deepfake") ? "fake" : "real"}`}>
-            {result}
+          <div className="result">
+            <pre>
+              {`Total Frames: ${result.total_frames}
+Real Count: ${result.real_count}
+Fake Count: ${result.fake_count}`}
+            </pre>
+            <LiveBar
+              realPercentage={result.real_percentage}
+              fakePercentage={result.fake_percentage}
+            />
+            {processingComplete && (
+              <div
+                className="final-verdict"
+                style={{
+                  backgroundColor: verdictBgColor,
+                  padding: "10px",
+                  borderRadius: "5px",
+                  marginTop: "10px",
+                  color: "#fff",
+                  fontWeight: "bold"
+                }}
+              >
+                {finalVerdict}
+              </div>
+            )}
           </div>
         )}
       </section>
+      <br /> <br /> <br />
       <section id="architecture">
-        <h2>Architecture</h2>
-        <p>More content goes here...</p>
-      </section>
+  <h2>WorkFlow</h2>
+  <div className="Arch_div">
+    <img src="/arch.png" alt="System Architecture" className="arch-img" />
+  </div>
+</section>
+
       <section id="about">
         <h2>About Us</h2>
-        <br />
-        <br />
+        <br /> <br />
         <div className="cards-container">
           {teamMembers.map((member, index) => (
             <div key={index} className="card">
               <img src={member.image} alt="Profile" className="profile-pic" />
-              <h3>
-                <br />
+              <h3> <br />
                 <DecryptedText
                   text={member.name}
                   animateOn="view"
                   revealDirection="start"
-                  style={{ fontSize: "24px", color: "white" }} // Inline CSS for this instance
+                  style={{ fontSize: "24px", color: "white" }}
                 />
-                <br />
-              </h3>
+              </h3> <br />
               <p>
                 <a href={member.github} target="_blank" rel="noopener noreferrer">
-                  <br />
-                  <DecryptedText
-                    text="GitHub"
-                    animateOn="view"
-                    revealDirection="start"
-                  />
+                  <DecryptedText text="GitHub" animateOn="view" revealDirection="start" />
                 </a>{" "}
                 |{" "}
                 <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
-                  <DecryptedText
-                    text="LinkedIn"
-                    animateOn="view"
-                    revealDirection="start"
-                  />
+                  <DecryptedText text="LinkedIn" animateOn="view" revealDirection="start" />
                 </a>
-              </p>
+              </p> 
               <p className="email">
                 <DecryptedText
                   text={member.email}
